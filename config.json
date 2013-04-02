@@ -10,5 +10,9 @@
 		"pass":"pooler123",
 		"host":"localhost",
 		"db":"phppool"
+	},
+	"pool":{
+		"mine_host":"mine.localhost",
+		"site_host":"localhost",
 	}
 }
