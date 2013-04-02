@@ -1,0 +1,6 @@
+phpPool is an open source php application that allow users to create
+a BitCoin minning pool it's built using a MITM based idea though the
+JSON-RPC in the Bit Coin client
+
+phpPool is licened under the AGPL the details can be found at
+http://www.gnu.org/licenses/agpl-3.0.html
