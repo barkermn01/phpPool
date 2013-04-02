@@ -1,0 +1,14 @@
+{
+	"server":{
+		"rpc_user":"barkermn01",
+		"rpc_password":"r5kjp9lk!",
+		"rpc_host":"localhost",
+		"rpc_port":"8332"
+	},
+	"database":{
+		"user":"pooler",
+		"pass":"pooler123",
+		"host":"localhost",
+		"db":"phppool"
+	}
+}
