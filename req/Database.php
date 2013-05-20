@@ -2,7 +2,7 @@
 class Database{
 	private $con;
 
-	private $select, $update, $delete, $set, $from, $where, $order, $limit;
+	private $select, $update, $delete, $set, $from, $where, $order, $limit, $insert, $into, $values;
 	
 	public function __construct($host, $user, $pass, $db){
 		$this->con = new mysqli($host, $user, $pass, $db);
@@ -12,10 +12,13 @@ class Database{
 		$this->select = "";
 		$this->update = "";
 		$this->delete = "";
+		$this->insert = "";
 		$this->from = ""; 
 		$this->where = ""; 
 		$this->order = "";
 		$this->limit = "";
+		$this->into = "";
+		$this->values = "";
 	}
 		
 	public function select($sel){
@@ -36,8 +39,19 @@ class Database{
 		return $this;
 	}
 	
+	public function insert($insert){
+		$this->reset();
+		$this->insert = $insert; 
+		return $this;
+	}
+	
 	public function from($from){
 		$this->from = $from;
+		return $this;
+	}
+	
+	public function into($into){
+		$this->into = $into;
 		return $this;
 	}
 	
@@ -58,6 +72,11 @@ class Database{
 	
 	public function limit($limit){
 		$this->limit = $limit;
+		return $this;
+	}
+	
+	public function values($values){
+		$this->values = $values;
 		return $this;
 	}
 	
@@ -90,17 +109,27 @@ class Database{
 			}
 			return $query;
 		}
+		if($this->insert != ""){
+			$query = "INSERT ";
+			if($this->into != ""){
+				$query .= " INTO ".$this->into." (".$this->insert.")";
+			}
+			if($this->values != ""){
+				$query .= " VALUES (".$this->values.")";
+			}
+			return $query;
+		}
 	}
 	
-	public function execute($return){
+	public function execute($return = ""){
 		$query = $this->buildQuery();
-		$result = $this->con->query($query) or die($mysqli->error.__LINE__);
 		
 		switch($return){
 			case "getQuery":
 				return $query;
 			break;
 			case "getRow":
+				$result = $this->con->query($query) or die($this->con->error.__LINE__);
 				if($result->num_rows > 0) {
 					while($row = $result->fetch_assoc()) {
 						return $row;	
@@ -111,6 +140,7 @@ class Database{
 				return $rows;
 			break;
 			case "getRows":
+				$result = $this->con->query($query) or die($this->con->error.__LINE__);
 				$rows = array();
 				if($result->num_rows > 0) {
 					while($row = $result->fetch_assoc()) {
@@ -120,6 +150,13 @@ class Database{
 					return false;
 				}
 				return $rows;
+			break;
+			case "insert_id":
+				$result = $this->con->query($query) or die($this->con->error.__LINE__);
+				return $this->con->insert_id;
+			break;
+			case "":
+				$result = $this->con->query($query) or die($this->con->error.__LINE__);
 			break;
 		}
 	}

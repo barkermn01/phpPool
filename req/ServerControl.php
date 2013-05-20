@@ -29,7 +29,8 @@ class ServerControl{
 						->from("`workers`")
 						->where("`user_id` = '".$check['user_id']."' AND `username` = '".$username[1]."' AND `password` = SHA1('".$pass."')")
 						->execute("getRow");
-						
+			$_SESSION['worker_id'] = $check['worker_id'];
+			
 			if(!$check){
 				header('WWW-Authenticate: Basic realm="phppool login"');
 				header('HTTP/1.0 401 Unauthorized');
@@ -47,6 +48,7 @@ class ServerControl{
 		$input = file_get_contents("php://input");
 
 		$data = json_decode($input);
+		
 		$response = $server->sendData($data);
 
 		$output = explode("\r\n\r\n", $response);
@@ -54,6 +56,17 @@ class ServerControl{
 		$output[0] = explode("\r\n", $output[0]);
 		foreach($output[0] as $key => $line){
 			header($line);
+		}
+		
+		$return = json_decode($output[1]);
+		
+		if($data->method == 'getwork' && isset($return->result->midstate)){
+			$this->db->insert("`worker_id`, `start_time`")->into("worker_blocks")->values("'".$_SESSION['worker_id']."', '".time()."'")->execute();
+		}elseif($data->method == 'getwork' && $return->result){
+			$this->db->update("worker_blocks")
+					 ->set("`end_time` = '".time()."'")
+					 ->where("`worker_id` = '".$_SESSION['worker_id']."' ORDER BY `block_id` ASC LIMIT 1")
+					 ->excute("insert_id");
 		}
 
 		echo $output[1];
